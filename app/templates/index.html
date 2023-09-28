@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Prella</title>
+  <link rel="manifest" href='{{ url_for("static", filename="manifest.json") }}'>
+  <link rel="stylesheet" href='{{ url_for("static", filename="styles/style.css") }}'>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src='{{ url_for("static", filename="scripts/Sortable.min.js") }}'></script>
+  <script src="https://cdn.socket.io/4.4.1/socket.io.min.js" integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H" crossorigin="anonymous"></script>
+</head>
+
+<body>
+  
+  <div class="delete">DELETE</div>
+  <form class="new-table-form">
+    <input type="text" placeholder="Название таблички" id="table-create-input" class="input">
+    <input type="submit" value="Добавить">
+  </form>
+  <br>
+  <div class="panel" id="panel">
+    
+    
+  </div>
+  <div id='error_mes'>У вас были замечены сбои в передаче данных перезагрузитесь</div>
+
+   
+  <script>
+  socketio = io()
+
+  id_inc = 0;
+  id_inc_task = 0;
+  function newTable(id, label){
+    const obj = $('<section class="tasks">'+
+          ' <h3 class="tasks__title"></h3>'+
+          ' <ul class="tasks__list"> </ul>'+
+          ' <form class="task-create">'+
+          ' <input type="text" size="18" class="inputTaskForm" placeholder="Название карточки" >'+
+          ' <input type="submit" class="submitTaskForm" value="Добавить"> </form> </section>',
+    ).attr('id', id);
+    obj.find('.tasks__title').html(label)
+                             .attr("contenteditable","true")
+                             .attr("id", id)
+                             .on("blur", function(event){
+                                t = $(this);
+                                socketio.emit('rename table', {id: t.attr('id'),
+                                                               label: t.html()});
+                             });
+    obj.appendTo('.panel');
+    Sortable.create(obj.find('.tasks__list').get(0),{
+      group: "tasklist-group",
+      delay: 100
+    });
+
+    obj.find('.task-create').on("submit", submitNewTaskForm);
+  };
+
+  function newTask(id, table_id, label){
+    const obj = $('<li class="task__item">'+
+                 '<p class="item__label"></p></li>')
+                 .attr('id',id)
+                 .attr('table_id', table_id)
+    obj.find('p').html(label).attr("contenteditable","true")
+                             .attr("id", id)
+                             .attr("table_id", table_id)
+                             .on("blur", function(event){
+                                t = $(this);
+                                socketio.emit('rename task', {id: t.attr('id'),
+                                                              table_id: t.attr('table_id'),
+                                                              label: t.html()});
+                             });
+    obj.appendTo('.panel #'+table_id+' .tasks__list');
+  };
+
+  function addingToDeleteBlock(event){
+    event.preventDefault();
+    who = $('.delete').find('section');
+    
+    if (who.length == 1){
+      //table
+      id = who.attr('id');
+      socketio.emit('del table', {id: id});
+    } else {
+      //task
+      who = $('.delete').find('li');
+      id = who.attr('id');
+      id_table = who.attr('table_id');
+      socketio.emit('del task', {id: id, table_id: table_id});
+    };
+  
+  };
+
+  $('.new-table-form').on("submit", function(event){
+    event.preventDefault();
+    value = $(this).find('.input').val();
+    socketio.emit('new table', {
+      label: value
+    });
+    $(this).find('.input').val("");
+  });
+
+  function submitNewTaskForm(event){
+    event.preventDefault();
+    value = $(this).find('.inputTaskForm').val();
+    table_id = $(this).parent().attr('id');
+    socketio.emit('new task', {
+      label: value,
+      table_id: table_id
+    });
+    $(this).find('.inputTaskForm').val('');
+  }
+
+  Sortable.create($('.panel').get(0),{
+    draggable: "section",
+    filter: "input",
+    preventOnFilter: false,
+    delay: 100
+  });
+
+  Sortable.create($('.delete').get(0),{
+    group: {put: true},
+    onAdd: addingToDeleteBlock
+  });
+
+  socketio.on('create table', create_table);
+  function create_table(data){
+    newTable(id=data['id'], label=data['label']);
+  };
+  socketio.on('create task', create_task);
+  function create_task(data){
+    newTask(id=data['id'], table_id=data['table_id'], label=data['label']);
+  };
+  socketio.on('delete table', delete_table);
+  function delete_table(data){
+    $('section#'+data['id']).detach();
+  };
+  socketio.on('delete task', delete_task);
+  function delete_task(data){
+    $('li#'+data['id']).detach();
+  };
+  socketio.on('rename table', rename_table);
+  function rename_table(data){
+    $('section#'+data['id']+" .tasks__title").html(data['label']);
+  };
+  socketio.on('rename task', rename_task);
+  function rename_task(data){
+    $('#'+data['id']+'.item__label').last().html(data['label']);
+  };
+
+  socketio.on('error', errorShow);
+  function errorShow(){
+    $('#error_mes').css('visibility', 'visible');
+  };
+
+  {% for id in order %}
+    newTable(id="{{ id }}", label="{{ info[id]['label'] }}");
+    {% for task_id in info[id]['tasks_order'] %}
+    newTask(id="{{task_id}}", table_id="{{id}}", label="{{info[id]['tasks_info'][task_id]['label']}}");
+    {% endfor %}
+  {% endfor %}
+  </script>
+  
+</body>
+</html>

@@ -1,0 +1,145 @@
+body {
+font-family: "Tahoma", sans-serif;
+font-size: 18px;
+line-height: 25px;
+color: black;
+
+background-color: #0078bf;
+height: 97%;
+max-height: 97%;
+min-height: 97%;
+    }
+
+.delete {
+    background-color: white;
+    border-radius: 5px;
+    
+    position: fixed;
+    bottom: 0;
+    left: 37%;
+    padding: 15px;
+    list-style: none;
+    max-height: 3%;
+    min-height: 3%;
+}
+
+#error_mes {
+    background-color: white;
+    border-radius: 5px;
+    border: 2px solid red;
+    padding: 3px;
+    position: fixed;
+    top: 37%;
+    left: 30%;
+    visibility: hidden;
+}
+
+.tasks {
+    min-width: 150px;
+    max-width: 150px;
+    height:min-content;
+    
+    overflow-x: hidden;
+    background-color: #dedfe2;
+    padding: 0px 0px 4px 4px;
+    border-radius: 5px;
+    margin-right: 5px;
+    border: 1px solid lightgrey;
+}
+
+.tasks__title {
+    margin: 0px 5px;
+    text-transform: uppercase;
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.tasks__list {
+    margin: 0;
+    padding: 0;
+    min-height: 50px;
+    list-style: none;
+    overflow-y: scroll;
+    max-height: 500px;
+}
+
+.task__item {
+    background-color: white;
+    border: 1px solid lightgrey;
+    border-bottom: 1px solid gray;
+    
+    border-radius: 3px;
+    margin-bottom: 4px;
+    
+    padding: 0px 5px;
+    overflow-x: hidden;
+}
+
+.tasks__item:last-child {
+    margin-bottom: 0;
+}
+
+.panel {
+	overflow-x: scroll;
+    display: flex;
+    min-height: 600px;
+}
+
+.item__label{
+    margin: 0px 0px;
+    display: inline-block;
+    font-size: 11px;
+}
+
+.inputTaskForm {
+    padding: 0;
+    font-size: 11px;
+    
+}
+
+.submitTaskForm {
+    font-size: 11px;
+}
+#table-create-input{
+    height: 20px;
+    border: 0px;
+    border-bottom: 2px solid black;
+    background-color: #0078bf;
+    color: white;
+    font-size: 15px;
+}
+#table-create-input::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+    color:    white;
+}
+#table-create-input::-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+   color:    white;
+   opacity:  1;
+}
+#table-create-input::-moz-placeholder { /* Mozilla Firefox 19+ */
+   color:    white;
+   opacity:  1;
+}
+#table-create-input:-ms-input-placeholder { /* Internet Explorer 10-11 */
+   color:    white;
+}
+#table-create-input::-ms-input-placeholder { /* Microsoft Edge */
+   color:    white;
+}
+
+#table-create-input::placeholder { /* Most modern browsers support this now. */
+   color:    white;
+}
+ /* Scroll set. */
+
+
+::-webkit-scrollbar
+{
+	width: 5px;
+}
+
+::-webkit-scrollbar-thumb
+{
+	background-color: #a7a7a7;
+	border-radius: 10px;
+}
