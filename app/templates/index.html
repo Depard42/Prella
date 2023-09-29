@@ -49,9 +49,11 @@
                                                                label: t.html()});
                              });
     obj.appendTo('.panel');
+    obj.find('.tasks__list').attr('id', id)
     Sortable.create(obj.find('.tasks__list').get(0),{
       group: "tasklist-group",
-      delay: 100
+      delay: 100,
+      onEnd: changePosTask
     });
 
     obj.find('.task-create').on("submit", submitNewTaskForm);
@@ -91,6 +93,30 @@
     };
   
   };
+  function changePosTable(ev){
+    table_id = $(ev.item).attr('id');
+    oldIndex = ev.oldDraggableIndex;
+    newIndex = ev.newDraggableIndex;
+    socketio.emit('change index table', {
+      table_id: table_id,
+      oldIndex: oldIndex,
+      newIndex: newIndex
+    });
+  };
+  function changePosTask(ev){
+    task_id = $(ev.item).attr('id');
+    toTable = $(ev.to).attr('id');
+    fromTable = $(ev.from).attr('id');
+    oldIndex = ev.oldDraggableIndex;
+    newIndex = ev.newDraggableIndex;
+    socketio.emit('change index task', {
+      task_id: task_id,
+      oldIndex: oldIndex,
+      newIndex: newIndex,
+      toTable: toTable,
+      fromTable: fromTable
+    });
+  };
 
   $('.new-table-form').on("submit", function(event){
     event.preventDefault();
@@ -116,7 +142,8 @@
     draggable: "section",
     filter: "input",
     preventOnFilter: false,
-    delay: 100
+    delay: 100,
+    onEnd: changePosTable
   });
 
   Sortable.create($('.delete').get(0),{
@@ -147,6 +174,29 @@
   socketio.on('rename task', rename_task);
   function rename_task(data){
     $('#'+data['id']+'.item__label').last().html(data['label']);
+  };
+  socketio.on('change index table', moveTable);
+  function moveTable(data){
+    table = $('#'+data['table_id']+'.tasks').detach()
+    if (data['next'] == 'end'){
+      table.appendTo($('.panel'))
+    }
+    else {
+      table.insertBefore($('#'+data['next']+'.tasks'))
+    }
+  };
+  socketio.on('change index task', moveTask);
+  function moveTask(data){
+    task = $('#'+data['task_id']+'.task__item').detach()
+    task.attr('table_id', data['toTable']);
+    task.find('p').attr('table_id', data['toTable']);
+    if (data['next'] === 'end'){
+      task.appendTo($('#'+data['toTable']+'.tasks__list'))
+    }
+    else{
+      task.insertBefore($('#'+data['next']+'.task__item'))
+    }
+    
   };
 
   socketio.on('error', errorShow);

@@ -1,4 +1,18 @@
 import json
+import auth
+
+class User():
+    def __init__(self, id, username):
+        self.id = id
+        self.username = 'test'
+        self.active = True
+    def is_active(self):
+        return True
+    def is_authenticated(self):
+        return True
+    def get_id(self):
+        return self.id
+USERS = {'1': User('1', auth.username)}
 
 class Tables():
     def __init__(self):
@@ -77,5 +91,33 @@ class Tables():
             id = str(id)
         try:
             self.info[table_id]['tasks_info'][id]['label'] = label
+        except:
+            return 'error'
+    
+    def changeIndexTable(self, table_id, oldIndex, newIndex):
+        try:
+            if oldIndex != newIndex:
+                self.order.remove(table_id)
+                self.order.insert(newIndex, table_id)
+                if newIndex + 1 == len(self.order):
+                    next = 'end'
+                else:
+                    next = self.order[newIndex+1]
+                return {'table_id': table_id, 'next': next}
+        except:
+            return 'error'
+    
+    def changeIndexTask(self, task_id, oldIndex, newIndex, toTable, fromTable):
+        try:
+            self.info[fromTable]['tasks_order'].remove(task_id)
+            self.info[toTable]['tasks_order'].insert(newIndex, task_id)
+            if toTable != fromTable:
+                self.info[toTable]['tasks_info'][task_id] = self.info[fromTable]['tasks_info'][task_id]
+                del self.info[fromTable]['tasks_info'][task_id]
+            if newIndex + 1 == len(self.info[toTable]['tasks_order']):
+                next = 'end'
+            else:
+                next = self.info[toTable]['tasks_order'][newIndex+1]
+            return {'task_id': task_id, 'next': next, 'fromTable':fromTable, 'toTable': toTable}
         except:
             return 'error'
