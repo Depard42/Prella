@@ -4,7 +4,7 @@ font-size: 18px;
 line-height: 25px;
 color: black;
 
-background-color: #0078bf;
+background-color: #0078bf;;
 height: 97%;
 max-height: 97%;
 min-height: 97%;
@@ -35,8 +35,8 @@ min-height: 97%;
 }
 
 .tasks {
-    min-width: 150px;
-    max-width: 150px;
+    min-width: 250px;
+    max-width: 250px;
     height:min-content;
     
     overflow-x: hidden;
