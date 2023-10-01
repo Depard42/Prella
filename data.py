@@ -1,5 +1,6 @@
 import json
 import auth
+import datetime
 
 class User():
     def __init__(self, id, username):
@@ -21,16 +22,18 @@ class Tables():
         if len(self.order) == 0: 
             self.new_id_table = 0
         else:
-            self.new_id_table = int(max(self.order))+1
+            self.new_id_table = max(map(int, self.order)) + 1
         
 
     def saveData(self):
         json.dump(self.info, open( "save_info.json", 'w' ))
         json.dump(self.order, open( "save_order.json", 'w' ))
-    
+        #json.dump(self.info, open( "backup/save_info"+str(datetime.datetime.now())+".json", 'w' ))
+        #json.dump(self.order, open( "backup/save_order"+str(datetime.datetime.now())+".json", 'w' ))
+     
     def create_table(self, label):
-        try:
-            id = str(self.new_id_table)
+         id = str(self.new_id_table)
+         if not id in self.order and not id in self.info.keys():
             self.new_id_table += 1
             self.info[id] = {'id':id, 
                             'label': label, 
@@ -38,31 +41,31 @@ class Tables():
                             'tasks_order':[]}
             self.order.append(id)
             return self.info[id]
-        except:
-            return 'error'
+         else:
+         	return 'error'
     
     def create_task(self, label, table_id):
         if type(table_id) != str:
             table_id = str(table_id)
-        try:
-            self.info["last_task_id"] += 1
-            id = str(self.info["last_task_id"])
+        self.info["last_task_id"] += 1
+        id = str(self.info["last_task_id"])
+        if not id in self.info[table_id]['tasks_info'].keys() and not id in self.info[table_id]['tasks_order']:
             self.info[table_id]['tasks_info'][id] = {
                             'id':id, 
                             'label': label, 
                             'table_id': table_id}
             self.info[table_id]['tasks_order'].append(id)
             return self.info[table_id]['tasks_info'][id]
-        except:
+        else:
             return 'error'
     
     def delete_table(self, table_id):
         if type(table_id) != str:
             table_id = str(table_id)
-        try:
+        if table_id in self.order and table_id in self.info.keys():
             del self.order[self.order.index(table_id)]
             return self.info.pop(table_id)
-        except:
+        else:
             return 'error'
     
     def delete_task(self, id, table_id):
@@ -70,18 +73,22 @@ class Tables():
             table_id = str(table_id)
         if type(id) != str:
             id = str(id)
-        try:
+        if table_id in self.info.keys() and id in self.info[table_id]['tasks_order'] and id in self.info[table_id]['tasks_info'].keys():
             del self.info[table_id]['tasks_order'][self.info[table_id]['tasks_order'].index(id)]
             return self.info[table_id]['tasks_info'].pop(id)
-        except:
+        else:
             return 'error'
     
     def rename_table(self, table_id, label):
         if type(table_id) != str:
             table_id = str(table_id)
-        try:
-            self.info[table_id]['label'] = label
-        except:
+        if table_id in self.info.keys():
+            if self.info[table_id]['label'] == label:
+            	return 'same'
+            else:
+            	self.info[table_id]['label'] = label
+            	return 1
+        else:
             return 'error'
     
     def rename_task(self, id, table_id, label):

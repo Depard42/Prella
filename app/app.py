@@ -98,10 +98,10 @@ def delTask(data):
 #change name of table
 @socketio.on('rename table')
 def renameTable(data):
-    info = tables.rename_table(int(data['id']), data['label'])
-    if info == "error":
+    status = tables.rename_table(int(data['id']), data['label'])
+    if status == "error":
         socketio.emit('error', room=session['sid'])
-    else:
+    elif status != 'same':
         socketio.emit('rename table', data)
         tables.saveData()
 
@@ -121,6 +121,8 @@ def changePosTable(data):
     table_id = data['table_id']
     oldIndex = int(data['oldIndex'])
     newIndex = int(data['newIndex'])
+    if table_id in ['','delete']:
+    	return 1
     info = tables.changeIndexTable(table_id, oldIndex, newIndex)
     if info == "error":
         socketio.emit('error', room=session['sid'])
@@ -136,6 +138,8 @@ def changePosTask(data):
     newIndex = data['newIndex']
     toTable = data['toTable']
     fromTable = data['fromTable']
+    if toTable in ['','delete']:
+    	return 1
     info = tables.changeIndexTask(task_id, int(oldIndex), int(newIndex), toTable, fromTable)
     if info == "error":
         socketio.emit('error', room=session['sid'])

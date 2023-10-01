@@ -5,3 +5,6 @@ auth.py
 app/__pycache__
 flask_session
 app/__pycache__/app.cpython-311.pyc
+app/__pycache__/app.cpython-39.pyc
+app/__pycache__/app.cpython-39.pyc
+app/__pycache__/app.cpython-311.pyc

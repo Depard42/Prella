@@ -14,7 +14,7 @@
 
 <body>
   
-  <div class="delete">DELETE</div>
+  <div class="delete" id="delete">DELETE</div>
   <form class="new-table-form">
     <input type="text" placeholder="Название таблички" id="table-create-input" class="input">
     <input type="submit" value="Добавить">
@@ -97,6 +97,8 @@
     table_id = $(ev.item).attr('id');
     oldIndex = ev.oldDraggableIndex;
     newIndex = ev.newDraggableIndex;
+    if ($(ev.to).attr('id') === "delete"){return 1;};
+    if (oldIndex === newIndex){return 1;};
     socketio.emit('change index table', {
       table_id: table_id,
       oldIndex: oldIndex,
@@ -109,6 +111,8 @@
     fromTable = $(ev.from).attr('id');
     oldIndex = ev.oldDraggableIndex;
     newIndex = ev.newDraggableIndex;
+    if (toTable === "delete"){return 1;};
+    if (oldIndex === newIndex){return 1;}
     socketio.emit('change index task', {
       task_id: task_id,
       oldIndex: oldIndex,
