@@ -111,7 +111,7 @@ def renameTask(data):
     info = tables.rename_task(data['id'], data['table_id'], data['label'])
     if info == "error":
         socketio.emit('error', room=session['sid'])
-    else:
+    elif info != 'same':
         socketio.emit('rename task', data)
         tables.saveData()
 

@@ -17,8 +17,8 @@ USERS = {'1': User('1', auth.username)}
 
 class Tables():
     def __init__(self):
-        self.info = json.load( open( "save_info.json" ) )
-        self.order = json.load( open( "save_order.json" ) )
+        self.info = json.load( open( "/root/Prella/save_info.json" ) )
+        self.order = json.load( open( "/root/Prella/save_order.json" ) )
         if len(self.order) == 0: 
             self.new_id_table = 0
         else:
@@ -26,10 +26,10 @@ class Tables():
         
 
     def saveData(self):
-        json.dump(self.info, open( "save_info.json", 'w' ))
-        json.dump(self.order, open( "save_order.json", 'w' ))
-        #json.dump(self.info, open( "backup/save_info"+str(datetime.datetime.now())+".json", 'w' ))
-        #json.dump(self.order, open( "backup/save_order"+str(datetime.datetime.now())+".json", 'w' ))
+        json.dump(self.info, open( "/root/Prella/save_info.json", 'w' ))
+        json.dump(self.order, open( "/root/Prella/save_order.json", 'w' ))
+        json.dump(self.info, open( "/root/Prella/backup/save_info"+str(datetime.datetime.now())+".json", 'w' ))
+        json.dump(self.order, open( "/root/Prella/backup/save_order"+str(datetime.datetime.now())+".json", 'w' ))
      
     def create_table(self, label):
          id = str(self.new_id_table)
@@ -97,6 +97,8 @@ class Tables():
         if type(id) != str:
             id = str(id)
         try:
+            if self.info[table_id]['tasks_info'][id]['label'] == label:
+                return 'same'
             self.info[table_id]['tasks_info'][id]['label'] = label
         except:
             return 'error'

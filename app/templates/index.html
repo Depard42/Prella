@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
 
   <title>Prella</title>
   <link rel="manifest" href='{{ url_for("static", filename="manifest.json") }}'>
@@ -14,12 +15,14 @@
 
 <body>
   
-  <div class="delete" id="delete">DELETE</div>
-  <form class="new-table-form">
-    <input type="text" placeholder="Название таблички" id="table-create-input" class="input">
-    <input type="submit" value="Добавить">
-  </form>
-  <br>
+  <div class="delete" id="delete"><img src='{{ url_for("static", filename="img/trash.svg") }}'></img></div>
+  <header>
+    <form class="new-table-form">
+      <input type="text" placeholder="Название таблички" id="table-create-input" class="input">
+      <input type="submit" value="Добавить">
+    </form>
+    <div id="status"></div>
+  </header>
   <div class="panel" id="panel">
     
     
@@ -28,10 +31,13 @@
 
    
   <script>
-  socketio = io()
+  socketio = io({
+    'reconnection': true,
+    'reconnectionDelay': 500,
+    'maxReconnectionAttempts': Infinity
+  })
 
-  id_inc = 0;
-  id_inc_task = 0;
+  
   function newTable(id, label){
     const obj = $('<section class="tasks">'+
           ' <h3 class="tasks__title"></h3>'+
@@ -88,7 +94,7 @@
       //task
       who = $('.delete').find('li');
       id = who.attr('id');
-      id_table = who.attr('table_id');
+      table_id = who.attr('table_id');
       socketio.emit('del task', {id: id, table_id: table_id});
     };
   
@@ -207,6 +213,13 @@
   function errorShow(){
     $('#error_mes').css('visibility', 'visible');
   };
+
+  socketio.on('connect', function(){
+    $('#status').css('background-color', 'lime');
+  });
+  socketio.on('disconnect', function(){
+    $('#status').css('background-color', 'red');
+  });
 
   {% for id in order %}
     newTable(id="{{ id }}", label="{{ info[id]['label'] }}");

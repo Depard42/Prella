@@ -4,10 +4,8 @@ font-size: 18px;
 line-height: 25px;
 color: black;
 
-background-color: #0078bf;;
-height: 97%;
-max-height: 97%;
-min-height: 97%;
+background-color: #0078bf;
+
     }
 
 .delete {
@@ -15,12 +13,16 @@ min-height: 97%;
     border-radius: 5px;
     
     position: fixed;
-    bottom: 0;
-    left: 37%;
-    padding: 15px;
+    transform: translate(-50%, 0%);
+    left: 50%;
+    bottom: 0%;
     list-style: none;
-    max-height: 3%;
     min-height: 3%;
+    padding: 3px 6px;
+}
+.delete img{
+    width: 50px;
+    height: 50px;
 }
 
 #error_mes {
@@ -32,6 +34,23 @@ min-height: 97%;
     top: 37%;
     left: 30%;
     visibility: hidden;
+}
+
+#status {
+    background-color: dimgray;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    
+}
+
+.new-table-form {
+    margin-bottom: 10px;
+}
+header{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
 }
 
 .tasks {
@@ -48,9 +67,9 @@ min-height: 97%;
 }
 
 .tasks__title {
-    margin: 0px 5px;
+    margin: 5px 40% 5px 5px;
     text-transform: uppercase;
-    display: inline-block;
+    display: block;
     font-size: 11px;
     font-weight: 800;
 }
@@ -87,8 +106,8 @@ min-height: 97%;
 }
 
 .item__label{
-    margin: 0px 0px;
-    display: inline-block;
+    margin: 5px 40% 5px 5px;
+    display: block;
     font-size: 11px;
 }
 
