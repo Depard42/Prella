@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect
 from flask_socketio import SocketIO, emit
 from uuid import uuid4
 
+import os
+
 from flask import session
 from flask_session import Session
 
