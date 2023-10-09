@@ -32,7 +32,6 @@ login.init_app(app)
 login.login_view = 'login'
 
 
-import auth
 from flask_login import current_user, login_user
 @app.route('/login', methods = ['POST', 'GET'])
 def login():
@@ -43,7 +42,7 @@ def login():
         id = '1'
         user = request.form['username']
         password = request.form['password']
-        if user == auth.username and password == auth.password:
+        if user == os.environ['PRELLA_LOGIN'] and password == os.environ['PRELLA_PASSWORD']:
             login_user(USERS[id])
             return redirect('/')
     
@@ -53,7 +52,7 @@ def login():
 @app.route("/", methods=["GET", "POST"])
 @login_required
 def func():
-    return render_template("index.html", order=tables.order, info=tables.info)
+    return render_template("index.html", order=tables.get_order(), info=tables.get_info())
 
 #add table
 @socketio.on('new table')
@@ -68,9 +67,9 @@ def newTable(data):
 #add task
 @socketio.on('new task')
 def newTask(data):
-    info = tables.create_task(data['label'], table_id=int(data['table_id']))
+    info = tables.create_task(data['label'], table_id = data['table_id'])
     if info == "error":
-        socketio.emit('error', room=session['sid'])
+        socketio.emit('error', room = session['sid'])
     else:
         socketio.emit('create task', info)
         tables.saveData()
@@ -78,7 +77,7 @@ def newTask(data):
 #delete table
 @socketio.on('del table')
 def delTable(data):
-    info = tables.delete_table(int(data['id']))
+    info = tables.delete_table(data['id'])
     if info == "error":
         socketio.emit('error', room=session['sid'])
     else:
@@ -88,9 +87,9 @@ def delTable(data):
 #delete task
 @socketio.on('del task')
 def delTask(data):
-    info = tables.delete_task(int(data['id']), int(data['table_id']))
+    info = tables.delete_task(data['id'], data['table_id'])
     if info == "error":
-        socketio.emit('error', room=session['sid'])
+        socketio.emit('error', room = session['sid'])
     else:
         socketio.emit('delete task', info)
         tables.saveData()
@@ -98,9 +97,9 @@ def delTask(data):
 #change name of table
 @socketio.on('rename table')
 def renameTable(data):
-    status = tables.rename_table(int(data['id']), data['label'])
+    status = tables.rename_table(data['id'], data['label'])
     if status == "error":
-        socketio.emit('error', room=session['sid'])
+        socketio.emit('error', room = session['sid'])
     elif status != 'same':
         socketio.emit('rename table', data)
         tables.saveData()
@@ -110,7 +109,7 @@ def renameTable(data):
 def renameTask(data):
     info = tables.rename_task(data['id'], data['table_id'], data['label'])
     if info == "error":
-        socketio.emit('error', room=session['sid'])
+        socketio.emit('error', room = session['sid'])
     elif info != 'same':
         socketio.emit('rename task', data)
         tables.saveData()
@@ -121,11 +120,11 @@ def changePosTable(data):
     table_id = data['table_id']
     oldIndex = int(data['oldIndex'])
     newIndex = int(data['newIndex'])
-    if table_id in ['','delete']:
+    if table_id in ['', 'delete']:
     	return 1
     info = tables.changeIndexTable(table_id, oldIndex, newIndex)
     if info == "error":
-        socketio.emit('error', room=session['sid'])
+        socketio.emit('error', room = session['sid'])
     else:
         socketio.emit('change index table', info)
         tables.saveData()
