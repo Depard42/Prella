@@ -1,2 +1,2 @@
-docker builder prune
+#docker builder prune
 docker build -t prella .
