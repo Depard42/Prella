@@ -4,6 +4,7 @@ import os
 
 root_dir = os.path.split(os.path.abspath(__file__))[0]
 backup_dir = os.path.join(root_dir, 'backup')
+saves_dir = os.path.join(root_dir, 'saves')
 
 def get_date():
     # Returns current date and time
@@ -25,8 +26,8 @@ USERS = {'1': User('1', os.environ['PRELLA_LOGIN'])}
 
 class Tables():
     def __init__(self):
-        self.info = json.load( open( os.path.join(root_dir, "save_info.json") ) )
-        self.order = json.load( open( os.path.join(root_dir, "save_order.json") ) )
+        self.info = json.load( open( os.path.join(saves_dir, "save_info.json") ) )
+        self.order = json.load( open( os.path.join(saves_dir, "save_order.json") ) )
         if len(self.order) == 0: 
             self.new_id_table = 0
         else:
@@ -34,11 +35,11 @@ class Tables():
         
 
     def saveData(self):
-        json.dump(self.info, open( os.path.join(root_dir, "save_info.json"), 'w' ))
-        json.dump(self.order, open( os.path.join(root_dir, "save_order.json"), 'w' ))
+        json.dump(self.info, open( os.path.join(saves_dir, "save_info.json"), 'w' ))
+        json.dump(self.order, open( os.path.join(saves_dir, "save_order.json"), 'w' ))
         filename = get_date() + '.json'
-        backup_info_dir = os.path.join(root_dir, 'backup', 'info#' +filename)
-        backup_order_dir = os.path.join(root_dir, 'backup', 'oreder#' +filename)
+        backup_info_dir = os.path.join(backup_dir, 'info#' +filename)
+        backup_order_dir = os.path.join(backup_dir, 'oreder#' +filename)
         json.dump(self.info, open( backup_info_dir, 'w' ))
         json.dump(self.order, open( backup_order_dir, 'w' ))
      
@@ -53,7 +54,7 @@ class Tables():
             self.order.append(id)
             return self.info[id]
          else:
-         	return 'error'
+            return 'error'
     
     def create_task(self, label: str, table_id: str):
         self.info["last_task_id"] += 1
@@ -85,7 +86,7 @@ class Tables():
     def rename_table(self, table_id: str, label: str):
         if table_id in self.info.keys():
             if self.info[table_id]['label'] == label:
-            	return 'same'
+                return 'same'
             self.info[table_id]['label'] = label
             return 1
         else:
