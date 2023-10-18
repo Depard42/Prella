@@ -5,6 +5,8 @@ import os
 root_dir = os.path.split(os.path.abspath(__file__))[0]
 backup_dir = os.path.join(root_dir, 'backup')
 saves_dir = os.path.join(root_dir, 'saves')
+saves_dir_order = os.path.join(saves_dir, "save_order.json")
+saves_dir_info = os.path.join(saves_dir, "save_info.json")
 
 def get_date():
     # Returns current date and time
@@ -26,8 +28,15 @@ USERS = {'1': User('1', os.environ['PRELLA_LOGIN'])}
 
 class Tables():
     def __init__(self):
-        self.info = json.load( open( os.path.join(saves_dir, "save_info.json") ) )
-        self.order = json.load( open( os.path.join(saves_dir, "save_order.json") ) )
+        if os.path.isfile(saves_dir_info) and os.path.isfile(saves_dir_order):
+            print('!== Load exicting saves')
+            self.info = json.load( open( saves_dir_info ) )
+            self.order = json.load( open( saves_dir_order ) )
+        else:
+            print('!== No exicting saves, create blanc')
+            self.info = {"last_task_id": 0}
+            self.order = []
+            self.saveData()
         if len(self.order) == 0: 
             self.new_id_table = 0
         else:
@@ -35,8 +44,8 @@ class Tables():
         
 
     def saveData(self):
-        json.dump(self.info, open( os.path.join(saves_dir, "save_info.json"), 'w' ))
-        json.dump(self.order, open( os.path.join(saves_dir, "save_order.json"), 'w' ))
+        json.dump(self.info, open( saves_dir_info, 'w' ))
+        json.dump(self.order, open( saves_dir_order, 'w' ))
         filename = get_date() + '.json'
         backup_info_dir = os.path.join(backup_dir, 'info#' +filename)
         backup_order_dir = os.path.join(backup_dir, 'oreder#' +filename)

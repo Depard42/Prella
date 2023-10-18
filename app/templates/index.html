@@ -16,20 +16,19 @@
 
 <body>
   
-  <div class="delete" id="delete"><img src='{{ url_for("static", filename="img/trash.svg") }}'></img></div>
-  <header>
+ 
+  
+  <header> 
     <form class="new-table-form">
       <input type="text" placeholder="Название таблички" id="table-create-input" class="input">
       <input type="submit" value="Добавить">
     </form>
     <div id="status"></div>
   </header>
-  <div class="panel" id="panel">
-    
-    
-  </div>
+  <div class="panel" id="panel"></div>
+  <div class="delete" id="delete" style='background: center / contain no-repeat url("{{ url_for("static", filename="img/trash.svg") }}"), red; background-size: 30px;'></div>
   <div id='error_mes'>У вас были замечены сбои в передаче данных перезагрузитесь</div>
-
+  <!--div id="scale_button">-</div-->
   <script src='{{ url_for("static", filename="scripts/main.js") }}'></script>
   <script>
   {% for id in order %}

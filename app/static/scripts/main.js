@@ -1,4 +1,6 @@
+
 isNeedFocus = false; //if true, focus on new table
+
 
 socketio = io({
     'reconnection': true,
@@ -6,6 +8,29 @@ socketio = io({
     'maxReconnectionAttempts': Infinity
   })
 
+function clickToEditable(event){
+  $(this).attr("contenteditable","true");
+  $(this).trigger('focus');
+  
+}
+function focusToEditable(event){
+  if (! $(this).hasClass('onedit')){
+    var sel = window.getSelection()
+    var selected_node = sel.anchorNode
+    sel.collapse(selected_node, $(this).text().length)
+    $(this).addClass("onedit")
+  }
+}
+function blurEditable(el){
+  $(el).removeClass("onedit");
+  $(el).attr("contenteditable","false");
+}
+function keydownEditable(event){
+  if (event.key == 'Enter') { 
+    $(this).trigger('blur'); 
+    event.preventDefault();
+  }
+}
   
 function newTable(id, label){
     const obj = $('<section class="tasks">'+
@@ -16,29 +41,43 @@ function newTable(id, label){
             ' <input type="submit" class="submitTaskForm" value="Добавить"> </form> </section>',
     ).attr('id', id);
     obj.find('.tasks__title').html(label)
+                            .attr("spellcheck", "false")
                             .attr("id", id)
                             .on("blur", function(event){
-                                $(this).attr("contenteditable","false");
+                                blurEditable(event);
                                 t = $(this);
                                 socketio.emit('rename table', {id: t.attr('id'),
                                                             label: t.html()});
+                                                            console.log($(this).find('.inputTaskForm'))
+                                $(this).siblings().find('.inputTaskForm').trigger('focus');
                             })
-                            .on('click', function(){
-                                $(this).attr("contenteditable","true")
-                            });
+                            .on('click', clickToEditable)
+                            .on('focus', focusToEditable)
+                            .on('keydown', keydownEditable)
     obj.appendTo('.panel');
     if (isNeedFocus){
         $('#'+id).ScrollTo({
             duration: 700,
             easing: 'linear'
         });
+        if ($('#'+id).find('.tasks__title').text() == '') {
+          $('#'+id).find('.tasks__title').trigger('click')
+        }
+        else {
+          $('#'+id).find('.inputTaskForm').trigger('focus');
+        }
         isNeedFocus = false;
     }
     obj.find('.tasks__list').attr('id', id);
     Sortable.create(obj.find('.tasks__list').get(0),{
         group: "tasklist-group",
-        onEnd: changePosTask,
-        delay: 100,
+        onStart: function(){
+          $('.delete').show();
+        },
+        onEnd: function(event){
+          $('.delete').hide();
+          changePosTask(event)},
+        delay: 100
     });
     obj.find('.task-create').on("submit", submitNewTaskForm);
 };
@@ -49,25 +88,27 @@ function newTable(id, label){
                  .attr('id',id)
                  .attr('table_id', table_id)
     obj.find('p').html(label).attr("id", id)
-                             .attr("table_id", table_id)
+                             .attr('table_id', table_id)
+                             .attr("spellcheck", "false")
                              .on("blur", function(event){
-                                $(this).attr("contenteditable","false");
+                                blurEditable(this);
                                 t = $(this);
                                 socketio.emit('rename task', {id: t.attr('id'),
                                                               table_id: t.attr('table_id'),
                                                               label: t.html()});
-                             });
-    obj.on('click', function(){
-        $(this).find('p').attr("contenteditable","true");
-     });
+                             })
+                             .on('click', clickToEditable)
+                             .on('focus', focusToEditable)
+                             .on('keydown', keydownEditable)
+    
     obj.appendTo('.panel #'+table_id+' .tasks__list');
   };
 
   function addingToDeleteBlock(event){
-    event.preventDefault();
+    //event.preventDefault();
     who = $('.delete').find('section');
     
-    if (who.length == 1){
+    if (who.length === 1){
       //table
       id = who.attr('id');
       socketio.emit('del table', {id: id});
@@ -99,7 +140,7 @@ function newTable(id, label){
     oldIndex = ev.oldDraggableIndex;
     newIndex = ev.newDraggableIndex;
     if (toTable === "delete"){return 1;};
-    if (oldIndex === newIndex){return 1;}
+    if (oldIndex === newIndex && fromTable === toTable ){return 1;}
     socketio.emit('change index task', {
       task_id: task_id,
       oldIndex: oldIndex,
@@ -136,16 +177,22 @@ function newTable(id, label){
     dragClass: "sortable-dragging",
     preventOnFilter: false,
     delay: 100,
-    onEnd: changePosTable,
+    swapThreshold: 2,
+    onStart: function(){
+      $('.delete').show();
+    },
+    onEnd: function(event){
+      changePosTable(event);
+      $('.delete').hide();
+    },
     animation: 150,
     easing: " cubic-bezier(0.55, 0, 1, 0.45)",
-    filter: 'input'
+    filter: 'input',
   });
 
   Sortable.create($('.delete').get(0),{
     group: {put: true},
-    onAdd: addingToDeleteBlock,
-    draggable: ''
+    onAdd: addingToDeleteBlock
   });
 
   socketio.on('create table', create_table);
@@ -207,3 +254,23 @@ function newTable(id, label){
   socketio.on('disconnect', function(){
     $('#status').css('background-color', 'red');
   });
+
+  /*isScale = false; //if true, user use scale to panel
+  $('#scale_button').on('click', () => {
+    if (isScale){ // Увеличиваем
+      console.log('-')
+      $('.panel').css('transform','scale(1) ')
+      $('.panel').css('width','100%')
+      $('.panel').css('height','calc(100% - 40px)')
+      $('#scale_button').html('-')
+      isScale = false
+    }
+    else { // Уменьшаем
+      console.log('+')
+      $('.panel').css('transform','scale(0.5) translate(-50%, -50%)')
+      $('.panel').css('width','200%')
+      $('.panel').css('height','calc(200% - 70px)')
+      $('#scale_button').html('+')
+      isScale = true
+    }
+  })*/
