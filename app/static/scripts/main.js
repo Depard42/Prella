@@ -48,7 +48,6 @@ function newTable(id, label){
                                 t = $(this);
                                 socketio.emit('rename table', {id: t.attr('id'),
                                                             label: t.html()});
-                                                            console.log($(this).find('.inputTaskForm'))
                                 $(this).siblings().find('.inputTaskForm').trigger('focus');
                             })
                             .on('click', clickToEditable)
@@ -56,15 +55,16 @@ function newTable(id, label){
                             .on('keydown', keydownEditable)
     obj.appendTo('.panel');
     if (isNeedFocus){
-        $('#'+id).ScrollTo({
+      new_table = $('#'+id+'.tasks')
+      new_table.ScrollTo({
             duration: 700,
             easing: 'linear'
         });
-        if ($('#'+id).find('.tasks__title').text() == '') {
-          $('#'+id).find('.tasks__title').trigger('click')
+        if (new_table.find('.tasks__title').text() == '') {
+        new_table.find('.tasks__title').trigger('click')
         }
         else {
-          $('#'+id).find('.inputTaskForm').trigger('focus');
+        new_table.find('.inputTaskForm').trigger('focus');
         }
         isNeedFocus = false;
     }
@@ -106,18 +106,16 @@ function newTable(id, label){
 
   function addingToDeleteBlock(event){
     //event.preventDefault();
-    who = $('.delete').find('section');
+    item =  $(event.item)
+    isTask = item.hasClass('task__item')
     
-    if (who.length === 1){
-      //table
-      id = who.attr('id');
-      socketio.emit('del table', {id: id});
-    } else {
-      //task
-      who = $('.delete').find('li');
-      id = who.attr('id');
-      table_id = who.attr('table_id');
+    if (isTask){
+      id = item.attr('id');
+      table_id = item.attr('table_id');
       socketio.emit('del task', {id: id, table_id: table_id});
+    } else {
+      id = item.attr('id');
+      socketio.emit('del table', {id: id});
     };
   
   };
@@ -205,11 +203,11 @@ function newTable(id, label){
   };
   socketio.on('delete table', delete_table);
   function delete_table(data){
-    $('section#'+data['id']).detach();
+    $('section#'+data['id']).remove();
   };
   socketio.on('delete task', delete_task);
   function delete_task(data){
-    $('li#'+data['id']).detach();
+    $('li#'+data['id']).remove();
   };
   socketio.on('rename table', rename_table);
   function rename_table(data){
