@@ -44,7 +44,7 @@ function newTable(id, label){
                             .attr("spellcheck", "false")
                             .attr("id", id)
                             .on("blur", function(event){
-                                blurEditable(event);
+                                blurEditable(this);
                                 t = $(this);
                                 socketio.emit('rename table', {id: t.attr('id'),
                                                             label: t.html()});
